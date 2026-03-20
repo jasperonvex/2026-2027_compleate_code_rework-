@@ -1,12 +1,13 @@
 #include "main.h"
-
-
+#include "robot_setup.hpp"
+#include "mainFunctions\functions.hpp"
 
 void initialize() {
 	pros::lcd::initialize();
 
-
+	
 }
+
 
 
 void disabled() {}
