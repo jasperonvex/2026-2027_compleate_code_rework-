@@ -1,0 +1,97 @@
+ok so here is what im thinking for the way the project will work
+
+
+I want like one main thing going into main.cpp
+
+* functions.hpp
+{
+
+class functions{
+
+    private:
+    
+    public:
+
+    normalizeAngle();   
+    NormalizDegAngle();
+
+}
+
+inizlizes these classes
+
+Odom Odom;
+Movment move;
+functions funct;
+
+}
+
+
+
+* odom.hpp
+
+   
+
+class odom{
+
+    private:
+    odomLoop();
+
+    double X;
+    double Y;
+    double A;
+
+    public:
+
+    StartOdomLoop();
+
+    GetDistencePOsition();
+
+    GetHeaderViaDIs();
+
+    getPositionData();
+
+}
+
+
+*Movment.hpp
+struct WayPoint{
+    double x;
+    double y;
+    float maxVeo;
+    float lookAhead;
+};
+
+class Movment{
+
+    private:
+    
+    public:
+
+    WayPoint waypoints[];
+
+    void Clear_waypoints(); 
+    // you could make this by having like a for or a while statment for like 20 for Ex then 
+    // then check if the look Ahead dis is == to zero if it is then it is good then leaave the for statment
+
+
+    void move();
+    
+    void turn();
+    
+    void turnToPos();
+
+    void turnFacing();
+};
+
+
+
+
+
+
+*Robot setupt
+
+extern yaydaya
+extern drivtrain
+extern right drivetrain
+
+//just that type of stuff
