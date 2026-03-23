@@ -1,4 +1,4 @@
-#include"main.h"
+#include"mainFunctionsH\functions.hpp"
 
 #pragma
 //change these as needed 
@@ -8,8 +8,8 @@ extern pros::MotorGroup rightMg({1,2,3});
 extern pros::MotorGroup leftMg({4,5,6});
 
 //odomertry
-extern pros::Rotation verticalWhel(7);
-extern pros::Rotation horosontleWhel(8);
+extern pros::Rotation verticalWheel(7);
+extern pros::Rotation horizontaleWheel(8);
 extern pros::Imu inert(9);
 
 //distence tracking
