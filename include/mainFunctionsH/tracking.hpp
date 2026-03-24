@@ -1,10 +1,15 @@
  
- struct position
-    {
+ struct position{
        double x;
        double y;
        double a;
     };
+
+struct distenceData{
+    double distence;
+    position DisOffset;
+    double degreeOffset;
+};
 
 class tracking{
     private:
@@ -17,7 +22,17 @@ class tracking{
 
     position RoboPosition;
 
+    distenceData distenceList[4] = {
+    //{distence, {xOfsset,Yoffset}, angleOffset}
+        {0,{0,0},0},//left front (0)
+        {0,{0,0},0},//right front (1)
+        {0,{0,0},0},//right (2)
+        {0,{0,0},0}//left (3)
+    };
+
     void odomLoop();
+
+    position calculateDisOffset(int quad,double disOfsetX, double disOffsetY, double disDegOffset, double rA, double distence);
 
     
     public:
@@ -28,8 +43,8 @@ class tracking{
 
     void setPosition(double x, double y, double a);
 
-    void getDistencePosition();
+    void getPosishViaDis(int dis1Num, int dis2Num);
     
-    void getHeaderViaDis();
+    void getHeaderViaDis(double perpWallHead);
 
 };

@@ -179,5 +179,121 @@ void tracking::setPosition(double x, double y, double a){
     inert.set_heading(a);
 }
 
+// quadrant mutiplyers.
+position quadrantOffset[5] = {
+    {0,0,0},// a fillar so the count works
+    {1,1,0},// I
+    {1,-1,0},// II
+    {-1,-1,0},// III
+    {-1,1,0}// IV
+};
+
+/*
+ *====================================================================
+ * GET POSITION VIA DISTENCE:
+ * 
+ * This distence tracking is used as a position reset. When I run the function 
+ * I declare wich distence sensors I am usuing and with knowing wich quadrant Im
+ * in and knowing what the robot's header I am able to use cos and sin to caculate
+ * the x and Y offsets from the corner of the wall. After that I can then translate
+ * that offset to the center of the feild giving me a global position of the robot 
+ * based off of the wall, greatly booting acuracy and giving us leancy when setting
+ * up the robot.
+ * ====================================================================
+ */
 
 
+//0 = leftFront, 1= rightfront, 2 = right, 3 = left
+void tracking::getPosishViaDis(int dis1Num, int dis2Num){
+    //updating every distence sensor
+    distenceList[0].distence = function.MM_to_IN(Fl.get_distance());
+    distenceList[1].distence = function.MM_to_IN(Fr.get_distance());
+    distenceList[2].distence = function.MM_to_IN(R.get_distance());
+    distenceList[3].distence = function.MM_to_IN(L.get_distance());
+
+    int quadrant;
+
+    //finding negetive or postivie  x y cords
+    int ySing = getPositionData().y > 0 ? 1 : -1;
+    int xSing = getPositionData().x > 0 ? 1 : -1;
+
+    double robotAngle = getPositionData().a;
+
+    // a row of possible if statments to figure out wich quadrant were in
+    if(ySing == 1 && xSing == 1) quadrant = 1;
+    if(ySing == -1 && xSing == 1) quadrant = 2;
+    if(ySing == -1 && xSing == -1) quadrant = 3;
+    if(ySing == 1 && xSing == -1) quadrant = 4;
+
+    // caculating the x and y position by punching in the data to a function( its declared under this one )
+    double DisXposition = calculateDisOffset(quadrant,distenceList[dis1Num].DisOffset.x,distenceList[dis1Num].DisOffset.y,distenceList[dis1Num].degreeOffset, robotAngle, distenceList[dis1Num].distence).x;
+    double DisYposition = calculateDisOffset(quadrant,distenceList[dis2Num].DisOffset.x,distenceList[dis2Num].DisOffset.y,distenceList[dis2Num].degreeOffset, robotAngle, distenceList[dis2Num].distence).x;
+
+    //roudning the positon to remove noise from the sensors 
+    DisXposition = function.roundNearistThous(DisXposition);
+    DisYposition = function.roundNearistThous(DisYposition);
+
+    //setting the final position
+    setPosition(DisXposition,DisYposition,robotAngle);
+
+
+}
+
+/*
+ *====================================================================
+ * CALCULATE DISTENCE OFFSET:
+ * 
+ * This is a child function that is used to slim down the main function.
+ * this is where the main math happens where I caculate the robots global
+ * positon off the wall.
+ * ====================================================================
+ */
+
+position tracking::calculateDisOffset(int quad,double disOfsetX, double disOffsetY, double disDegOffset, double rA, double distence){
+    double disXoffset = quadrantOffset[quad].x * (72 - abs(sin(function.DegToRad(function.normalizeDegAngle(rA + disDegOffset)))*distence));
+    double disYoffset = quadrantOffset[quad].y * (72 - abs(sin(function.DegToRad(function.normalizeDegAngle(rA + disDegOffset)))*distence));
+
+    double disOffRadianTh = atan2(disOfsetX,disOffsetY);
+    double disOffsetRadianHyp = sqrt(pow(disOfsetX,2) + pow(disOffsetY,2));
+
+    disOffRadianTh += function.DegToRad(rA);
+
+    double OffsetX = sin(disOffRadianTh) * disOffsetRadianHyp;
+    double OffsetY = cos(disOffRadianTh) * disOffsetRadianHyp;
+    
+    disXoffset -= OffsetX;
+    disYoffset -= OffsetY;
+
+    return {disXoffset,disYoffset};
+}
+
+
+
+void tracking::getHeaderViaDis(double perpWallHead){
+    double LFD = 0;
+    double RFD = 0;
+
+    for (size_t i = 0; i < 10; i++){
+        
+        LFD += function.MM_to_IN(Fl.get_distance());
+        RFD += function.MM_to_IN(Fr.get_distance());
+    }
+
+    LFD = LFD/10;
+    RFD = RFD/10;
+
+    double theta = function.RadToDeg(atan2((LFD-RFD),abs(distenceList[1].DisOffset.x - distenceList[0].DisOffset.x)));
+
+    double robotHeader = perpWallHead - theta;
+
+    robotHeader = function.roundNearistThous(robotHeader);
+
+    inert.set_heading(robotHeader);
+
+    position roboNewHeaderPos = getPositionData();
+
+    roboNewHeaderPos.a = robotHeader;
+
+    setPosition(roboNewHeaderPos.x,roboNewHeaderPos.y,roboNewHeaderPos.a);
+    
+}
