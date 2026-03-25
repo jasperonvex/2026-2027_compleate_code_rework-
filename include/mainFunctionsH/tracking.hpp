@@ -1,15 +1,15 @@
  
- struct position{
+struct position{
        double x;
        double y;
        double a;
     };
 
-struct distenceData{
-    double distence;
-    position DisOffset;
-    double degreeOffset;
-};
+    struct distenceData{
+        double distence;
+        position DisOffset;
+        double degreeOffset;
+    };
 
 class tracking{
     private:
@@ -20,6 +20,8 @@ class tracking{
     //how far the vertial wheel is from the center of the robot x axis wise
     double verticalOffset = 0;
 
+     
+    
     position RoboPosition;
 
     distenceData distenceList[4] = {
@@ -48,3 +50,4 @@ class tracking{
     void getHeaderViaDis(double perpWallHead);
 
 };
+

@@ -158,7 +158,9 @@ void tracking::startOdomLoop(){
     inert.set_data_rate(5);
 
     pros::delay(10);
-    pros::Task odomLoopTask(odomLoop);
+    pros::Task odomLoopTask([this]{
+        this->odomLoop();
+    });
     
 
 }

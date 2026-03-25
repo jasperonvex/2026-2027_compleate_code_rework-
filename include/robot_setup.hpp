@@ -1,23 +1,23 @@
-#include"mainFunctionsH\functions.hpp"
-
+//#include"mainFunctionsH\functions.hpp"
+#include "main.h"
 #pragma
 //change these as needed 
 
 //drivetrain
-extern pros::MotorGroup rightMg({1,2,3});
-extern pros::MotorGroup leftMg({4,5,6});
+extern pros::MotorGroup rightMg;
+extern pros::MotorGroup leftMg;
 
 //odomertry
-extern pros::Rotation verticalWheel(7);
-extern pros::Rotation horizontaleWheel(8);
-extern pros::Imu inert(9);
+extern pros::Rotation verticalWheel;
+extern pros::Rotation horizontaleWheel;
+extern pros::Imu inert;
 
 //distence tracking
 
-extern pros::Distance Fl(10);
-extern pros::Distance Fr(11);
-extern pros::Distance R(12);
-extern pros::Distance L(13);
+extern pros::Distance Fl;
+extern pros::Distance Fr;
+extern pros::Distance R;
+extern pros::Distance L;
 
 //add anything else down here
 
