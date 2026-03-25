@@ -2,6 +2,8 @@
 #include "mainFunctionsH\functions.hpp"
 #include "robot_setup.hpp"
 
+tracking track;
+
 double  vertDisDelta = 0;
 double vertDis = 0;
 double vertPrevDis = 0;

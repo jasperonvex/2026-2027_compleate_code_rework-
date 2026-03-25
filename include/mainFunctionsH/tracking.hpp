@@ -51,3 +51,4 @@ class tracking{
 
 };
 
+extern tracking track;
