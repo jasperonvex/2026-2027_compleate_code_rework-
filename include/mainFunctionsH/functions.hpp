@@ -1,5 +1,6 @@
 #include "math.h"
-#include "main.h"
+//#include "main.h"
+//#include "mainFunctionsH\tracking.hpp"
 class functions{
     private:
     public:

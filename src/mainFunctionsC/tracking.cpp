@@ -2,6 +2,8 @@
 #include "mainFunctionsH\functions.hpp"
 #include "robot_setup.hpp"
 
+tracking track;
+
 double  vertDisDelta = 0;
 double vertDis = 0;
 double vertPrevDis = 0;
@@ -158,7 +160,9 @@ void tracking::startOdomLoop(){
     inert.set_data_rate(5);
 
     pros::delay(10);
-    pros::Task odomLoopTask(odomLoop);
+    pros::Task odomLoopTask([this]{
+        this->odomLoop();
+    });
     
 
 }
@@ -268,26 +272,47 @@ position tracking::calculateDisOffset(int quad,double disOfsetX, double disOffse
 }
 
 
+/*
+ *======================================================================
+ *GET HEADER VIA DISTENCE SENSOR:
+ *
+ * This function gets the Gloabal orintation of the robot based off the wall
+ * It dose this by usuing the two distences sensors on one side of the robot
+ * in this scnerio the two sensors are on the front of the robot.
+ * and then we assume we are facing towrds a specefic wall and with that
+ * we can find the diffrence between the two values from each sensor to make a Right triangle against
+ * the wall since we already know the adjecent line from the distence between the two sensors.
+ * wich then can give us the theta of the of the triangle, wich can corrospond to the global orintation.
+ * =====================================================================
+ */
+
 
 void tracking::getHeaderViaDis(double perpWallHead){
     double LFD = 0;
     double RFD = 0;
 
+    // gets 10 values of the sensors and avradges them for acuracy
     for (size_t i = 0; i < 10; i++){
         
         LFD += function.MM_to_IN(Fl.get_distance());
         RFD += function.MM_to_IN(Fr.get_distance());
+        pros::delay(1);
     }
 
     LFD = LFD/10;
     RFD = RFD/10;
 
+    //caculates the theta of the right triangle from the diffrence between sensor 1 and two and how wide are they from each other.
     double theta = function.RadToDeg(atan2((LFD-RFD),abs(distenceList[1].DisOffset.x - distenceList[0].DisOffset.x)));
 
+    //since we assume what wall we are, the theta acts as a offset so if we can subtract it from the perpwall header wich is what the
+    // header would be if we were perfectly perpindiclar with it 
     double robotHeader = perpWallHead - theta;
 
+    //a quick round to remove sound
     robotHeader = function.roundNearistThous(robotHeader);
 
+    // a quick update to the position of the robots position
     inert.set_heading(robotHeader);
 
     position roboNewHeaderPos = getPositionData();
