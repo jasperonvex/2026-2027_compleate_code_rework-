@@ -45,7 +45,7 @@ class tracking{
 
     void setPosition(double x, double y, double a);
 
-    void getPosishViaDis(int dis1Num, int dis2Num);
+    void getAbsolutePosition(int dis1Num, int dis2Num);
     
     void getHeaderViaDis(double perpWallHead);
 

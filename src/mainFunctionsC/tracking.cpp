@@ -194,7 +194,7 @@ position quadrantOffset[5] = {
 
 /*
  *====================================================================
- * GET POSITION VIA DISTENCE:
+ * ABSOLUTE POSITIONING:
  * 
  * This distence tracking is used as a position reset. When I run the function 
  * I declare wich distence sensors I am usuing and with knowing wich quadrant Im
@@ -208,7 +208,7 @@ position quadrantOffset[5] = {
 
 
 //0 = leftFront, 1= rightfront, 2 = right, 3 = left
-void tracking::getPosishViaDis(int dis1Num, int dis2Num){
+void tracking::getAbsolutePosition(int dis1Num, int dis2Num){
     //updating every distence sensor
     distenceList[0].distence = function.MM_to_IN(Fl.get_distance());
     distenceList[1].distence = function.MM_to_IN(Fr.get_distance());

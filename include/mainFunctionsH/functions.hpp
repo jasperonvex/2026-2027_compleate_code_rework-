@@ -21,6 +21,8 @@ class functions{
     //swithces mm to inches
     double MM_to_IN(double MM);
 
+    double GetDistence(double x1, double y1, double x2, double y2);
+
 };
 
 //so any files that includes this one can use the classes
