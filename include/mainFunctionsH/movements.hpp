@@ -29,8 +29,13 @@ class Movement{
     //
 
     double disPerPoint = 0.5;
+    double maxAccel = 10;
+
+    double maxRate = 10;
 
     std::vector<pathD> path;
+
+
     public:
 
     
