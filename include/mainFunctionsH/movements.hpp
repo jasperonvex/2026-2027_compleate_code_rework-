@@ -21,7 +21,7 @@ struct pathD
 class Movement{
     private:
 
-    // settings for purepursuit
+    // settings for pure pursuit
     double trackWidth = 0;
     double Kv = 0;
     double Ka = 0;
@@ -39,7 +39,7 @@ class Movement{
     public:
 
     
-    void PurePuresuit(bool Isreverse, double timeout, std::vector<Waypoint> Waypoints);
+    void PurePursuit(bool Isreverse, double timeout, std::vector<Waypoint> Waypoints);
 
     void turn(double Deg);
 

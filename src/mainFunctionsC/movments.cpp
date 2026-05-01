@@ -4,7 +4,28 @@
 #include "robot_setup.hpp"
 #include "main.h"
 
-void Movement::PurePuresuit(bool Isreverse, double timeout, std::vector<Waypoint> Waypoints){
+
+/*
+ *====================================================================
+ * PURE PURSUIT:
+ * 
+ * The Pure Pursuit algorithm is the main path-following movment method we will use.
+ * In the algorthim we take a seris of waypoints and insert new points to smoothen out the path.
+ * After this we calculate the distence along the path along with the curvature, so we can 
+ * give each point a target velicites within the accleration limits we set.
+ * After the setting up section is compleat we run a loop where the robots position is updated 
+ * and looks for the closet point of to the robot so then we can use that point to give us our 
+ * target velocity and our look ahead distence. With the look ahead distence we calculate the
+ * look ahead point wich is a set distence down the path so the robot will move towrds that point
+ * The main way it dose this is right after we cacluate the curvature the robot needs to get to the
+ * look ahead point and with tht we run the target velocity on a rate limiter, and send a 
+ * individual target velocity to each wheel with a feed forward and feed back loop. The loop will
+ * end when one of the two critera end loop varibles are met wether we are cut off by the time out
+ * or we are with in a set distence away from the very last point.
+ *====================================================================
+ */
+
+void Movement::PurePursuit(bool Isreverse, double timeout, std::vector<Waypoint> Waypoints){
     double timePassed;
 
     int toltP = 0;
