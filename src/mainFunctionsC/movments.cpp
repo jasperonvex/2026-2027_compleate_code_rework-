@@ -29,9 +29,10 @@ void Movement::PurePursuit(bool Isreverse, double timeout, std::vector<Waypoint>
     double timePassed;
 
     int toltP = 0;
-
+    //this is section intersects points between the set waypoints.
     for (size_t i = 0; i < Waypoints.size() - 1; i++){
         
+        // we get the distence and how many points can fit within the set disperpoint and then the angle.
         double distence = function.GetDistence(Waypoints[i].x, Waypoints[i].y, Waypoints[i+1].x, Waypoints[i+1].y);
 
         int NumOfPointInset = ceil(distence/disPerPoint);
@@ -39,7 +40,7 @@ void Movement::PurePursuit(bool Isreverse, double timeout, std::vector<Waypoint>
         double angle = atan2(Waypoints[i+1].y - Waypoints[i].y, Waypoints[i+1].x - Waypoints[i].x);
 
         for (size_t g = 0; g < NumOfPointInset; i++){
-            
+            //with that weintersect points and yaking the data of the first waypoint till the last point
             path[toltP].x = ((g * disPerPoint) * cos(angle)) + Waypoints[i].x;
             path[toltP].y = ((g * disPerPoint) * cos(angle)) + Waypoints[i].y;
             path[toltP].targetVel = Waypoints[i].maxVeo;
@@ -47,7 +48,7 @@ void Movement::PurePursuit(bool Isreverse, double timeout, std::vector<Waypoint>
 
             toltP++;
         }
-        
+        //puting the final point or the waypoint 
         path[toltP].x = Waypoints[i + 1].x;
         path[toltP].y = Waypoints[i + 1].y;
         path[toltP].targetVel = Waypoints[i + 1].maxVeo;
@@ -56,6 +57,8 @@ void Movement::PurePursuit(bool Isreverse, double timeout, std::vector<Waypoint>
         toltP++;
     }
 
+
+    // now we calculate the distence the point is along the path
     double cumulativeDistence = 0;
 
     path[0].disAlongPoint = 0;
@@ -66,18 +69,21 @@ void Movement::PurePursuit(bool Isreverse, double timeout, std::vector<Waypoint>
         path[i].disAlongPoint = cumulativeDistence;
     }
     
+    //and now the curvature of a point
+    //this used the theroy that three randomly placed points not in a straigt
+    //line can be connected by a circl thus having a curvature
     for (size_t i = 0; i < toltP; i++)
     {
         if(i == 0 || i == toltP -1) path[i].curvature = 0;
         else{
             double x1 = path[i-1].x;
             double y1 = path[i-1].y;
-            double x2 = path[i].x + 0.0000001;
+            double x2 = path[i].x + 0.0000001;//to reduce error
             double y2 = path[i].y;
             double x3 = path[i+1].x;
             double y3 = path[i+1].y;
 
-
+            
             double k1 = 0.5 * (pow(x1,2) + pow(y1,2) - pow(x2,2) - pow(y2,2))/(x1 - x2);
             double k2 = (y1 - y2)/(x1 - x2);
             double b = 0.5 * (pow(x2,2) - 2 * x2 * k1 + pow(y2,2) - pow(x3,2) * k1 - pow(y3,2))/  (x3 * k2 - y3 + y2 - x2 * k2);
@@ -86,14 +92,14 @@ void Movement::PurePursuit(bool Isreverse, double timeout, std::vector<Waypoint>
             double R = sqrt(pow(x1 - a,2) + pow(y1 -b,2));
             double curvature = R != 0 ? 1/R : 0;
 
-            if(isnan(curvature)) curvature = 0;
+            if(isnan(curvature)) curvature = 0;//tho if the curvature is un calulatable then the line is a straight line
 
             path[i].curvature = curvature;
         }   
     }
             
     double K = 3;
-
+    //this sets the target velocity lower if the curvature is higher.
     for (size_t i = 0; i < toltP; i++) {
         
         if(path[i].curvature != 0){
@@ -101,7 +107,9 @@ void Movement::PurePursuit(bool Isreverse, double timeout, std::vector<Waypoint>
         }
     }
 
-
+    //with this we assume the robot can only accerlate so fast
+    //so we go from the last point to the first point
+    //changing the velocity if it can only change so much
     path[toltP - 1].targetVel = 0;
 
     for (size_t i = toltP - 2; i >= 0; i--){
@@ -121,12 +129,15 @@ void Movement::PurePursuit(bool Isreverse, double timeout, std::vector<Waypoint>
 
     double prevLeftTS = 0;
     double prevRightTs = 0;
-
+    //the driving loop
     while(true){
+        //updates the robotis position
         position localPos = track.getPositionData();
 
         if(Isreverse) localPos.a = function.normalizeDegAngle(localPos.a + 180);
 
+        //caclutes the closet point by calculating every points distence then if it is smaller then the last 
+        //closest points distence then that will be the new closet point.
         int closetP = prevCP;
         double closetPDis = function.GetDistence(localPos.x, localPos.y, path[closetP].x, path[closetP].y);
         if(prevCP != toltP){
@@ -142,6 +153,8 @@ void Movement::PurePursuit(bool Isreverse, double timeout, std::vector<Waypoint>
 
         prevCP = closetP;
 
+        //now we caclulate the look ahead point
+
         double lookAheadDis = path[closetP].lookAhead;
         double lookAheadPoint[2] = {path[prevLAP].x, path[prevLAP].y};
 
@@ -153,6 +166,8 @@ void Movement::PurePursuit(bool Isreverse, double timeout, std::vector<Waypoint>
        for (size_t i = 0; i < 2; i++){
             if(i > 0) lookAheadDis *= 1.35;
             for (size_t i = closetP; i < toltP; i++){
+                //looks for a intersection to the path on the circle wich 
+                //has the radius of the look ahead distence
                 double dx = path[i+1].x - path[i].x;
             double dy = path[i+1].y - path[i].y;
 
@@ -165,10 +180,11 @@ void Movement::PurePursuit(bool Isreverse, double timeout, std::vector<Waypoint>
 
             double discrim = pow(b,2) - 4*a*c;
             
-            if (discrim < 0) continue;
+            if (discrim < 0) continue;// if it is not zero we can continue
 
             discrim = sqrt(discrim);
 
+            //there is two possible driminants so we calculate for both of them
             double t1 = (-b -discrim) / (2*a);
             double t2 = (-b + discrim) / (2*a);
 
