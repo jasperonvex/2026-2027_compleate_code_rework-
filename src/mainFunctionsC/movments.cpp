@@ -208,6 +208,7 @@ void Movement::PurePursuit(bool Isreverse, double timeout, std::vector<Waypoint>
             
        }
 
+       //finally if the look ahead point is not found then look 5 points ahead of the previous look ahead point.
        if(!lookAheadIsFound){
             int seed = std::min(startIndex + 5, endIndex);
             lookAheadPoint[0] = path[seed].x;
@@ -215,6 +216,7 @@ void Movement::PurePursuit(bool Isreverse, double timeout, std::vector<Waypoint>
             prevLAP = seed;
        }
        
+       // now we calculate the x offset of the robot to the look ahead point
        double xOffset;
        
 
@@ -227,31 +229,37 @@ void Movement::PurePursuit(bool Isreverse, double timeout, std::vector<Waypoint>
        double perpX = -headingY;
        double perpY = headingX;
 
+       //if the robot is in revers we have to invert it.
        xOffset = Isreverse?(dx * perpX + dy * perpY) : -(dx * perpX + dy * perpY);
 
+       // then we calculate the curvature to the look ahead point
        double curvatureA = 2*xOffset/(lookAheadDis*lookAheadDis);
 
-
+       //this is the rate limiter so we accerlate smoothly into a target speed.
        double targetVelocity = std::clamp(path[closetP].targetVel - prevTargetVel, -maxRate, maxRate);
        prevTargetVel = targetVelocity;
 
+       //we ace like each drivetrain has its own arch so we use the curvature to change the target velocity
        double leftTargetVel = (targetVelocity * (2 + curvatureA * trackWidth)/2)*60;
        double rightTargetVel = (targetVelocity * (2 - curvatureA * trackWidth)/2)*60;
 
-       double leftFF = Kv * leftTargetVel + Ka * ((leftTargetVel - prevLeftTS));
-       double leftFB = Kp * (leftTargetVel - leftMg.get_voltage());
+       //left side feed forward and feed back loop
+       double leftFF = Kv * leftTargetVel + Ka * ((leftTargetVel - prevLeftTS));//feed forward looks at what the speed should be
+       double leftFB = Kp * (leftTargetVel - leftMg.get_voltage());//feed forward looks at the drivetrain and if its hitting the speed
 
-       double leftVel = isnan(leftFF + leftFB) ? 0 : leftFF + leftFB;
+       double leftVel = isnan(leftFF + leftFB) ? 0 : leftFF + leftFB;//if it dosent compute then set it to zero
 
        prevLeftTS = leftVel;
 
-       double rightFF = Kv * rightTargetVel + Ka * ((rightTargetVel - prevRightTs));
-       double rightFB = Kp * (rightTargetVel - rightMg.get_voltage());
+       //right feed forward and feed back
+       double rightFF = Kv * rightTargetVel + Ka * ((rightTargetVel - prevRightTs));//feed forward looks at what the speed should be
+       double rightFB = Kp * (rightTargetVel - rightMg.get_voltage());//feed forward looks at the drivetrain and if its hitting the speed
 
-       double rightVel = isnan(rightFF + rightFB) ? 0 : rightFF + rightFB;
+       double rightVel = isnan(rightFF + rightFB) ? 0 : rightFF + rightFB;//if it dosent compute then set it to zero
 
        prevRightTs = rightVel;
 
+       //finally send the values to the drivetrain.
        if(Isreverse){
             leftMg.move_voltage(-leftVel);
             rightMg.move_voltage(-rightVel);
@@ -261,13 +269,15 @@ void Movement::PurePursuit(bool Isreverse, double timeout, std::vector<Waypoint>
        }
 
 
-
+       //delay of the loop runs every 20ms
        pros::delay(20);
-
+    
+       //updates the end varibles
        double disFromEndPoint = function.GetDistence(localPos.x, localPos.y, path[toltP - 1].x, path[toltP - 1].y);
        
        timePassed += 20;
 
+       //checks the end conditions 
        if(disFromEndPoint <= 4 || timePassed >- timeout){
 
         rightMg.brake();
