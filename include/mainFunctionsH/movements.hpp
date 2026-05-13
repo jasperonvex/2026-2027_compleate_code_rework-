@@ -26,6 +26,8 @@ class Movement{
     double Kv = 0;
     double Ka = 0;
     double Kp = 0;
+
+    bool Record_Data = false;
     //
 
     double disPerPoint = 0.5;
@@ -40,12 +42,15 @@ class Movement{
 
     
     void PurePursuit(bool Isreverse, double timeout, std::vector<Waypoint> Waypoints);
+/*
+    this is a future project to make good turn functions    
 
     void turn(double Deg);
 
     void turnToPos(double x, double y);
 
     void turnFacing(double Head);
+*/
 
 };
 

@@ -26,6 +26,31 @@
  */
 
 void Movement::PurePursuit(bool Isreverse, double timeout, std::vector<Waypoint> Waypoints){
+
+    FILE * StataP;
+    FILE * StataD;
+
+    //this is for data saving setting it up in csv
+    if(Record_Data){
+        //opening up a new file
+        std::string filePathPD = std::string("/usd/")+"drivingPathData.csv";
+        
+        //csv format
+        StataP = fopen(filePathPD.c_str(), "w");
+        fprintf(StataP, "num:,xCord:,yCord:,curvature:,distanceAlongPath:,targetVel:\n");
+   
+        fclose(StataP);
+    
+        //opening up the driving data in csv
+        std::string filePathDD = std::string("/usd/")+"peerpursuitDrivingData.csv";
+        //setting it up in csv
+        StataD = fopen(filePathDD.c_str(), "w");
+        fprintf(StataD, "num:,closetPointX:,closetPointY:,lookAheadX:,lookAheadY:,LeftTargetVel:,rightTargetVel:,leftVoltages:,rightVoltages:\n");
+   
+        fclose(StataD);
+    }
+
+
     double timePassed;
 
     int toltP = 0;
@@ -120,6 +145,19 @@ void Movement::PurePursuit(bool Isreverse, double timeout, std::vector<Waypoint>
             path[i].targetVel = MaxPosbVel;
         }
     }
+
+    //recording data again
+    if(Record_Data){
+         StataP = fopen("/usd/peerpursuitpathdata.csv", "a");
+        for (size_t i = 0; i < toltP; i++){
+        
+        //saving each points data.
+        fprintf(StataP,"%d,%.8f,%.8f,%.8f,%.8f,%.8f\n",i,path[i].x,path[i].y,path[i].curvature,path[i].disAlongPoint,path[i].targetVel);
+        
+    
+        fclose(StataP);
+        }
+    }
     
     
     int prevCP = 0;
@@ -129,6 +167,8 @@ void Movement::PurePursuit(bool Isreverse, double timeout, std::vector<Waypoint>
 
     double prevLeftTS = 0;
     double prevRightTs = 0;
+
+    double num = 0;
     //the driving loop
     while(true){
         //updates the robotis position
@@ -267,7 +307,14 @@ void Movement::PurePursuit(bool Isreverse, double timeout, std::vector<Waypoint>
             rightMg.move_voltage(rightVel);
             leftMg.move_voltage(leftVel);
        }
+       //records data every loop
+       if(Record_Data){
+        //saving what the robot is curently picking up, this is specfically for tuning the robot.
+            fprintf(StataD, "%d,%.5f,%.5f,%.5f,%.5f,%.3f,%.3f,%.3f,%.3f\n"
+                ,num,path[closetP].x,path[closetP].y,lookAheadPoint[0],lookAheadPoint[1],leftTargetVel,rightTargetVel,leftVel,rightVel);
+       }
 
+       num++;
 
        //delay of the loop runs every 20ms
        pros::delay(20);
