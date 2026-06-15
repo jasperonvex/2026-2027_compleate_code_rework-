@@ -1,4 +1,4 @@
-#include "mainFunctionsH\functions.hpp"
+#include "mainFunctionsH/functions.hpp"
 
 
 functions function;

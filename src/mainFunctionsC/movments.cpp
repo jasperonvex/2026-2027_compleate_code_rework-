@@ -1,6 +1,6 @@
-#include "mainFunctionsH\movements.hpp"
-#include "mainFunctionsH\functions.hpp"
-#include "mainFunctionsH\tracking.hpp"
+#include "mainFunctionsH/movements.hpp"
+#include "mainFunctionsH/functions.hpp"
+#include "mainFunctionsH/tracking.hpp"
 #include "robot_setup.hpp"
 #include "main.h"
 

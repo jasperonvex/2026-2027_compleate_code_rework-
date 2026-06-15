@@ -1,5 +1,5 @@
-#include "mainFunctionsH\tracking.hpp"
-#include "mainFunctionsH\functions.hpp"
+#include "mainFunctionsH/tracking.hpp"
+#include "mainFunctionsH/functions.hpp"
 #include "robot_setup.hpp"
 
 tracking track;
