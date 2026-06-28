@@ -322,3 +322,96 @@ void tracking::getHeaderViaDis(double perpWallHead){
     setPosition(roboNewHeaderPos.x,roboNewHeaderPos.y,roboNewHeaderPos.a);
     
 }
+
+
+void cameraTracking::Start_ATLA(){
+    vis.reset();
+    vis.enable_detection_types(pros::AivisionModeType::tags);
+    vis.set_tag_family(pros::AivisionTagFamily::tag_21H7);
+
+    pros::Task startingATLA([]{
+        track.cameraTrack.ATLA();
+    });
+   
+}
+
+
+
+void cameraTracking::ATLA(){
+    double Fx = (Image_Width/2) / tan(Horosontle_FOV/2);
+    double Fy = (Image_Height/2) / tan(Veritcal_FOV/2);
+
+    
+
+    while(true){
+        auto objects = vis.get_all_objects();
+
+        position roboPos = track.getPositionData();
+
+        double Camx;
+        double Camy;
+
+        double CroboX;
+        double CroboY;
+        
+        if(objects.empty())
+        {
+            pros::delay(500);
+            continue;
+        
+        }
+        
+        auto object = objects[0];
+        
+            if(!pros::AIVision::is_type(object, pros::AivisionDetectType::tag)){ 
+                pros::delay(500);
+                continue;
+            }
+
+            TagID = object.id;
+
+            double corn0[2] = {object.object.tag.x0,object.object.tag.y0};
+            double corn1[2] = {object.object.tag.x1,object.object.tag.y1};
+            double corn2[2] = {object.object.tag.x2,object.object.tag.y2};
+            double corn3[2] = {object.object.tag.x3,object.object.tag.y3};
+
+            TagPixlePosition[0] = (corn0[0]+corn1[0]+corn2[0]+corn3[0])/4;
+            TagPixlePosition[1] = (corn0[1]+corn1[1]+corn2[1]+corn3[1])/4;
+            
+            double horizontalBearing = atan(( TagPixlePosition[0] -(Image_Width/2) )/Fx);
+            double verticalBearing = atan(((Image_Height/2) - TagPixlePosition[1])/Fy);
+            
+            double pixleWidth = (function.GetDistence(corn0[0],corn0[1],corn1[0],corn1[1]) 
+                                + function.GetDistence(corn3[0],corn3[1],corn2[0],corn2[1]))/2;
+            
+            double GroundDistence = (Focal_length_Pixels / pixleWidth) * cos(verticalBearing + cameraoffset.pitchOffset);
+
+            double GlobalBearing = roboPos.a + horizontalBearing + cameraoffset.yawOffset;
+
+            aprilTag curentAprilTag = apriltags[TagID];
+
+            double disFromRedAprilTags = function.GetDistence(curentAprilTag.TagPosition.x,curentAprilTag.TagPosition.y,roboPos.x,roboPos.y);
+            double disFromBlueAprilTags = function.GetDistence(-curentAprilTag.TagPosition.x,-curentAprilTag.TagPosition.y,roboPos.x,roboPos.y);
+
+            if(disFromBlueAprilTags < disFromRedAprilTags){
+                curentAprilTag.TagPosition.x = -curentAprilTag.TagPosition.x;
+                curentAprilTag.TagPosition.y = -curentAprilTag.TagPosition.y;
+            }
+
+            int directFace = ((int)round(GlobalBearing / (M_PI / 2.0)) % 4 + 4) % 4;
+
+            curentAprilTag.TagPosition.x += aprilTag_offset[directFace].x;
+            curentAprilTag.TagPosition.y += aprilTag_offset[directFace].y;
+
+            Camx = curentAprilTag.TagPosition.x - (GroundDistence * cos(GlobalBearing));
+            Camy = curentAprilTag.TagPosition.y - (GroundDistence * sin(GlobalBearing));
+
+            CroboX = Camx - (cameraoffset.Yoffset * cos(roboPos.a)) - (cameraoffset.xOffset * sin(roboPos.a));
+            CroboY = Camy - (cameraoffset.Yoffset * sin(roboPos.a)) + (cameraoffset.xOffset * cos(roboPos.a));
+        
+            track.setPosition(CroboX,CroboY,roboPos.a);
+        
+
+        pros::delay(50);
+    }
+}

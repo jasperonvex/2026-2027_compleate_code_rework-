@@ -19,5 +19,8 @@ extern pros::Distance Fr;
 extern pros::Distance R;
 extern pros::Distance L;
 
+//ai vision sensor
+extern pros::AIVision vis;
+
 //add anything else down here
 
