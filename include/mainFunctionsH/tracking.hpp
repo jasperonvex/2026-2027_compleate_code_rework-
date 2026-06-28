@@ -38,7 +38,7 @@ class cameraTracking{
 
     
 
-    double Focal_length_Pixels = 157.3605;// (distence * pixlewidth) / actual width
+    double Focal_length_Pixels = 157;// (distence * pixlewidth) / actual width
     
     aprilTag apriltags[5] = {
         {0,{0,0}},
@@ -50,10 +50,10 @@ class cameraTracking{
 
     //distance from tag to center of the goal is 1.756
     position aprilTag_offset[4] = {
-        {0,1.756,0},
-        {1.756,0,90},
-        {0,-1.756,180},
-        {-1.756,0,270}
+        {0,-1.756,0},
+        {-1.756,0,90},
+        {0,1.756,180},
+        {1.756,0,270}
     };
     //automatic tag localization Approximation 
     void ATLA();
@@ -65,6 +65,14 @@ class cameraTracking{
     int TagID;
 
     double TagPixlePosition[2];
+
+    aprilTag curentAprilTag ;
+
+    double CamXOffset;
+    double CamYoffset;
+
+     double pixelHieght;
+     double pixleWidth;
 };
 
 class tracking{

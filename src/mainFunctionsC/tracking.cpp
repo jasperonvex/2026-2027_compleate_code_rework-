@@ -346,7 +346,7 @@ void cameraTracking::ATLA(){
     while(true){
         auto objects = vis.get_all_objects();
 
-        position roboPos = track.getPositionData();
+        position roboPos = track.RoboPosition;
 
         double Camx;
         double Camy;
@@ -386,9 +386,9 @@ void cameraTracking::ATLA(){
             
             double GroundDistence = (Focal_length_Pixels / pixleWidth) * cos(verticalBearing + cameraoffset.pitchOffset);
 
-            double GlobalBearing = roboPos.a + horizontalBearing + cameraoffset.yawOffset;
+            double GlobalBearing = roboPos.a + horizontalBearing + function.DegToRad(cameraoffset.yawOffset);
 
-            aprilTag curentAprilTag = apriltags[TagID];
+            curentAprilTag = apriltags[TagID];
 
             double disFromRedAprilTags = function.GetDistence(curentAprilTag.TagPosition.x,curentAprilTag.TagPosition.y,roboPos.x,roboPos.y);
             double disFromBlueAprilTags = function.GetDistence(-curentAprilTag.TagPosition.x,-curentAprilTag.TagPosition.y,roboPos.x,roboPos.y);
@@ -409,7 +409,8 @@ void cameraTracking::ATLA(){
             CroboX = Camx - (cameraoffset.Yoffset * cos(roboPos.a)) - (cameraoffset.xOffset * sin(roboPos.a));
             CroboY = Camy - (cameraoffset.Yoffset * sin(roboPos.a)) + (cameraoffset.xOffset * cos(roboPos.a));
         
-            track.setPosition(CroboX,CroboY,roboPos.a);
+            track.RoboPosition.x = CroboX;
+            track.RoboPosition.y = CroboY;
         
 
         pros::delay(50);
