@@ -22,6 +22,36 @@ void autonomous() {}
 
 void opcontrol() {
 
+	/*
+	pros::Controller master(pros::controller_id_e_t::E_CONTROLLER_MASTER);
+	pros::Motor lift(10);
+
+	bool isbuttonpressed = true;
+	while (true){
+		pros::delay(10);
+
+		if(master.get_digital(DIGITAL_R1)){
+			lift.move_voltage(12000);
+			isbuttonpressed = true;
+		}
+		if(master.get_digital(DIGITAL_R2)){
+			lift.move_voltage(-12000);
+			isbuttonpressed = true;
+		}
+
+		if(isbuttonpressed == false){
+			lift.move_voltage(0);
+		}
+
+		isbuttonpressed = false;
+
+		
+		pros::delay(10);
+		
+	}
+		*/
+	
+
 	inert.reset();
 	pros::delay(2000);
 	track.RoboPosition.x = -48;
@@ -46,4 +76,6 @@ void opcontrol() {
 
 		pros::delay(100);                               
 	}
+
+	
 }
