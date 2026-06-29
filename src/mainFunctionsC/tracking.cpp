@@ -356,7 +356,7 @@ void cameraTracking::ATLA(){
         
         if(objects.empty())
         {
-            pros::delay(500);
+            pros::delay(50);
             continue;
         
         }
@@ -364,7 +364,7 @@ void cameraTracking::ATLA(){
         auto object = objects[0];
         
             if(!pros::AIVision::is_type(object, pros::AivisionDetectType::tag)){ 
-                pros::delay(500);
+                pros::delay(50);
                 continue;
             }
 
@@ -378,11 +378,18 @@ void cameraTracking::ATLA(){
             TagPixlePosition[0] = (corn0[0]+corn1[0]+corn2[0]+corn3[0])/4;
             TagPixlePosition[1] = (corn0[1]+corn1[1]+corn2[1]+corn3[1])/4;
             
-            double horizontalBearing = atan(( TagPixlePosition[0] -(Image_Width/2) )/Fx);
+            double horizontalBearing = -atan(( TagPixlePosition[0] -(Image_Width/2) )/Fx);
             double verticalBearing = atan(((Image_Height/2) - TagPixlePosition[1])/Fy);
             
-            double pixleWidth = (function.GetDistence(corn0[0],corn0[1],corn1[0],corn1[1]) 
+            pixleWidth = (function.GetDistence(corn0[0],corn0[1],corn1[0],corn1[1]) 
                                 + function.GetDistence(corn3[0],corn3[1],corn2[0],corn2[1]))/2;
+
+            if(pixleWidth < 10 && pixleWidth > 30){
+                pros::delay(50);
+                continue;
+
+                //adds a limit so the focal distance dosent get too crazy
+            }
             
             double GroundDistence = (Focal_length_Pixels / pixleWidth) * cos(verticalBearing + cameraoffset.pitchOffset);
 
@@ -403,11 +410,14 @@ void cameraTracking::ATLA(){
             curentAprilTag.TagPosition.x += aprilTag_offset[directFace].x;
             curentAprilTag.TagPosition.y += aprilTag_offset[directFace].y;
 
-            Camx = curentAprilTag.TagPosition.x - (GroundDistence * cos(GlobalBearing));
-            Camy = curentAprilTag.TagPosition.y - (GroundDistence * sin(GlobalBearing));
+            CamXOffset = (GroundDistence * sin(GlobalBearing));
+            CamYoffset = (GroundDistence * cos(GlobalBearing));
 
-            CroboX = Camx - (cameraoffset.Yoffset * cos(roboPos.a)) - (cameraoffset.xOffset * sin(roboPos.a));
-            CroboY = Camy - (cameraoffset.Yoffset * sin(roboPos.a)) + (cameraoffset.xOffset * cos(roboPos.a));
+            Camx = curentAprilTag.TagPosition.x - CamXOffset;
+            Camy = curentAprilTag.TagPosition.y - CamYoffset;
+
+            CroboX = Camx - (cameraoffset.Yoffset * sin(roboPos.a)) - (cameraoffset.xOffset * cos(roboPos.a));
+            CroboY = Camy - (cameraoffset.Yoffset * cos(roboPos.a)) + (cameraoffset.xOffset * sin(roboPos.a));
         
             track.RoboPosition.x = CroboX;
             track.RoboPosition.y = CroboY;

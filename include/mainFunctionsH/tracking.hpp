@@ -28,7 +28,7 @@ class cameraTracking{
         double yawOffset;
         double pitchOffset;
    }
-    cameraoffset = {0,0,0,0};
+    cameraoffset = {0,0,-3.72,0};
 
     double Image_Width = 320;
     double Image_Height = 240;
@@ -38,7 +38,7 @@ class cameraTracking{
 
     
 
-    double Focal_length_Pixels = 157;// (distence * pixlewidth) / actual width
+    double Focal_length_Pixels = (-0.23414 * pixleWidth)+160.31024;// (distence * pixlewidth) / actual width
     
     aprilTag apriltags[5] = {
         {0,{0,0}},

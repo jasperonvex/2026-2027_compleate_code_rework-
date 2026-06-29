@@ -33,16 +33,16 @@ void opcontrol() {
 	while (true) {
 		track.RoboPosition.a = function.roundNearistThous(function.DegToRad(inert.get_heading()));
 
-		
+		pros::lcd::set_text(0,"pixel Width: " + std::to_string(track.cameraTrack.pixleWidth));
 		pros::lcd::set_text(1,"robot X: " + std::to_string(track.RoboPosition.x));
 		pros::lcd::set_text(2,"robot Y: " + std::to_string(track.RoboPosition.y));
 		pros::lcd::set_text(3,"robot A: " + std::to_string(function.RadToDeg(track.RoboPosition.a)));
 		
-		pros::lcd::set_text(4, "pixel height: " + std::to_string(track.cameraTrack.pixelHieght));
-		pros::lcd::set_text(5, "pexel width: " + std::to_string(track.cameraTrack.pixleWidth));
+		pros::lcd::set_text(4, "tag position x" + std::to_string(track.cameraTrack.curentAprilTag.TagPosition.x));
+		pros::lcd::set_text(5, "tag position y: " + std::to_string(track.cameraTrack.curentAprilTag.TagPosition.y));
 
-		pros::lcd::set_text(6, "pixleX" + std::to_string(track.cameraTrack.TagPixlePosition[0]));
-		pros::lcd::set_text(7, "pixleY" + std::to_string(track.cameraTrack.TagPixlePosition[1]));
+		pros::lcd::set_text(6, "offset x: " + std::to_string(track.cameraTrack.CamXOffset));
+		pros::lcd::set_text(7, "offset y:  " + std::to_string(track.cameraTrack.CamYoffset));
 
 		pros::delay(100);                               
 	}
