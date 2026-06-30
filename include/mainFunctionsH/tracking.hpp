@@ -1,4 +1,4 @@
- 
+ #include "string"
 struct position{
    double x;
    double y;
@@ -73,6 +73,8 @@ class cameraTracking{
 
      double pixelHieght;
      double pixleWidth;
+    std::string cameraStatusOrignal = "Camera status: ";
+     std::string camerastatus = cameraStatusOrignal;
 };
 
 class tracking{

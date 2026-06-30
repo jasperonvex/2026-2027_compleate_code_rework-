@@ -344,6 +344,8 @@ void cameraTracking::ATLA(){
     
 
     while(true){
+  
+
         auto objects = vis.get_all_objects();
 
         position roboPos = track.RoboPosition;
@@ -357,6 +359,7 @@ void cameraTracking::ATLA(){
         if(objects.empty())
         {
             pros::delay(50);
+            camerastatus = cameraStatusOrignal + "No tag";
             continue;
         
         }
@@ -365,6 +368,7 @@ void cameraTracking::ATLA(){
         
             if(!pros::AIVision::is_type(object, pros::AivisionDetectType::tag)){ 
                 pros::delay(50);
+                camerastatus = cameraStatusOrignal + "Not a tag ?";
                 continue;
             }
 
@@ -386,9 +390,10 @@ void cameraTracking::ATLA(){
 
             if(pixleWidth < 10 && pixleWidth > 30){
                 pros::delay(50);
-                continue;
-
+                 camerastatus = cameraStatusOrignal + "Tag out of rang";
                 //adds a limit so the focal distance dosent get too crazy
+                continue;
+               
             }
             
             double GroundDistence = (Focal_length_Pixels / pixleWidth) * cos(verticalBearing + cameraoffset.pitchOffset);
@@ -400,9 +405,11 @@ void cameraTracking::ATLA(){
             double disFromRedAprilTags = function.GetDistence(curentAprilTag.TagPosition.x,curentAprilTag.TagPosition.y,roboPos.x,roboPos.y);
             double disFromBlueAprilTags = function.GetDistence(-curentAprilTag.TagPosition.x,-curentAprilTag.TagPosition.y,roboPos.x,roboPos.y);
 
+            camerastatus = cameraStatusOrignal + "redSide & ";
             if(disFromBlueAprilTags < disFromRedAprilTags){
                 curentAprilTag.TagPosition.x = -curentAprilTag.TagPosition.x;
                 curentAprilTag.TagPosition.y = -curentAprilTag.TagPosition.y;
+                camerastatus = cameraStatusOrignal + "blueSide & ";
             }
 
             int directFace = ((int)round(GlobalBearing / (M_PI / 2.0)) % 4 + 4) % 4;
@@ -421,8 +428,8 @@ void cameraTracking::ATLA(){
         
             track.RoboPosition.x = CroboX;
             track.RoboPosition.y = CroboY;
+        camerastatus +=   "worked sucsufully";
         
-
         pros::delay(50);
     }
 }
