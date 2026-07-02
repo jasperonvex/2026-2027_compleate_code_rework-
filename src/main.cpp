@@ -22,7 +22,7 @@ void autonomous() {}
 
 void opcontrol() {
 
-	/*
+	
 	pros::Controller master(pros::controller_id_e_t::E_CONTROLLER_MASTER);
 	pros::Motor lift(10);
 
@@ -49,8 +49,8 @@ void opcontrol() {
 		pros::delay(10);
 		
 	}
-		*/
-	
+		
+	/*
 
 	inert.reset();
 	pros::delay(2000);
@@ -76,6 +76,6 @@ void opcontrol() {
 
 		pros::delay(100);                               
 	}
-
+*/
 	
 }

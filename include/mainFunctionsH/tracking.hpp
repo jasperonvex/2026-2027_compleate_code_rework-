@@ -19,7 +19,7 @@ struct aprilTag
 };
 
 
-class cameraTracking{
+class cameraTracking : public tracking{
     private:
 
    struct cameraOffset {
@@ -58,10 +58,22 @@ class cameraTracking{
     //automatic tag localization Approximation 
     void ATLA();
 
+    double CroboX;
+    double CroboY;
+
+    double tolerance = 8.0;
+
     public:
     //start the automatic tag localization Approximation 
     void Start_ATLA();
 
+    position getAtlaPosition();
+
+    bool TagPositionDetected;
+
+    double CameraTrust;
+
+    // should be private
     int TagID;
 
     double TagPixlePosition[2];
@@ -78,6 +90,7 @@ class cameraTracking{
 };
 
 class tracking{
+    
     private:
 
     //how far the horosntle wheel is from the center of the robot Y axis wise
@@ -100,12 +113,17 @@ class tracking{
 
     void odomLoop();
 
+    void tracking::MergeCameraAndATLA();
+
     position calculateDisOffset(int quad,double disOfsetX, double disOffsetY, double disDegOffset, double rA, double distence);
 
+    position RoboPosition;
+
     
+
     public:
 
-    position RoboPosition;
+   
 
     void startOdomLoop();
 

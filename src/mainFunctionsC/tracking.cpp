@@ -106,12 +106,18 @@ void tracking::odomLoop(){
         }
         //always update the header 
         RoboPosition.a = function.RadToDeg(Header);
-
+        
+        if(cameraTrack.TagPositionDetected)MergeCameraAndATLA;
 
         pros::delay(10);//needs to stay below 10ms
         
         
     }
+}
+
+void tracking::MergeCameraAndATLA(){
+    RoboPosition.x += (RoboPosition.x - cameraTrack.getAtlaPosition().x) * cameraTrack.CameraTrust;
+    RoboPosition.y += (RoboPosition.y - cameraTrack.getAtlaPosition().y) * cameraTrack.CameraTrust;
 }
 
 
@@ -323,8 +329,9 @@ void tracking::getHeaderViaDis(double perpWallHead){
     
 }
 
-
 void cameraTracking::Start_ATLA(){
+    TagPositionDetected = false;
+
     vis.reset();
     vis.enable_detection_types(pros::AivisionModeType::tags);
     vis.set_tag_family(pros::AivisionTagFamily::tag_21H7);
@@ -344,22 +351,21 @@ void cameraTracking::ATLA(){
     
 
     while(true){
-  
+        
 
         auto objects = vis.get_all_objects();
 
-        position roboPos = track.RoboPosition;
+        position roboPos = track.getPositionData();
 
         double Camx;
         double Camy;
 
-        double CroboX;
-        double CroboY;
         
-        if(objects.empty())
-        {
+        
+        if(objects.empty()){
             pros::delay(50);
             camerastatus = cameraStatusOrignal + "No tag";
+            TagPositionDetected = false;
             continue;
         
         }
@@ -369,6 +375,7 @@ void cameraTracking::ATLA(){
             if(!pros::AIVision::is_type(object, pros::AivisionDetectType::tag)){ 
                 pros::delay(50);
                 camerastatus = cameraStatusOrignal + "Not a tag ?";
+                TagPositionDetected = false;
                 continue;
             }
 
@@ -388,9 +395,10 @@ void cameraTracking::ATLA(){
             pixleWidth = (function.GetDistence(corn0[0],corn0[1],corn1[0],corn1[1]) 
                                 + function.GetDistence(corn3[0],corn3[1],corn2[0],corn2[1]))/2;
 
-            if(pixleWidth < 10 && pixleWidth > 30){
+            if(pixleWidth < 10 || pixleWidth > 30){
                 pros::delay(50);
                  camerastatus = cameraStatusOrignal + "Tag out of rang";
+                 TagPositionDetected = false;
                 //adds a limit so the focal distance dosent get too crazy
                 continue;
                
@@ -426,10 +434,25 @@ void cameraTracking::ATLA(){
             CroboX = Camx - (cameraoffset.Yoffset * sin(roboPos.a)) - (cameraoffset.xOffset * cos(roboPos.a));
             CroboY = Camy - (cameraoffset.Yoffset * cos(roboPos.a)) + (cameraoffset.xOffset * sin(roboPos.a));
         
-            track.RoboPosition.x = CroboX;
-            track.RoboPosition.y = CroboY;
+           TagPositionDetected = true;
+            /*
+            4.65145 is the avrage error of the liner eqation to the recorded points
+            55 is the number of points i recorded
+            17.16473 is the avrage pixel width
+            */
+           double errorSigma = 4.65145 * sqrt(1.0 + (1.0 / 55.0) + (pow (pixleWidth - 17.16473,2) /1489.90897));
+
+           CameraTrust = 100 * erf(tolerance / (errorSigma * sqrt(2)));
+            
         camerastatus +=   "worked sucsufully";
         
         pros::delay(50);
     }
 }
+
+
+position cameraTracking::getAtlaPosition(){
+    return {CroboX,CroboY,0};
+}
+
+
