@@ -107,7 +107,7 @@ void tracking::odomLoop(){
         //always update the header 
         RoboPosition.a = function.RadToDeg(Header);
         
-        if(cameraTrack.TagPositionDetected)MergeCameraAndATLA;
+        if(cameraTrack.TagPositionDetected)MergeCameraAndATLA();
 
         pros::delay(10);//needs to stay below 10ms
         

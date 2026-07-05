@@ -19,7 +19,7 @@ struct aprilTag
 };
 
 
-class cameraTracking : public tracking{
+class cameraTracking{
     private:
 
    struct cameraOffset {
@@ -113,7 +113,7 @@ class tracking{
 
     void odomLoop();
 
-    void tracking::MergeCameraAndATLA();
+    void MergeCameraAndATLA();
 
     position calculateDisOffset(int quad,double disOfsetX, double disOffsetY, double disDegOffset, double rA, double distence);
 

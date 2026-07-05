@@ -3,6 +3,8 @@
 #pragma
 //change these as needed 
 
+extern pros::Controller master;
+
 //drivetrain
 extern pros::MotorGroup rightMg;
 extern pros::MotorGroup leftMg;
@@ -23,4 +25,6 @@ extern pros::Distance L;
 extern pros::AIVision vis;
 
 //add anything else down here
+
+extern pros::Motor contentiouslift;
 

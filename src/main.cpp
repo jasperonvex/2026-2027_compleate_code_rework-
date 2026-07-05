@@ -23,31 +23,14 @@ void autonomous() {}
 void opcontrol() {
 
 	
-	pros::Controller master(pros::controller_id_e_t::E_CONTROLLER_MASTER);
-	pros::Motor lift(10);
+	
 
-	bool isbuttonpressed = true;
-	while (true){
-		pros::delay(10);
+	while(true){
+		 rightMg.move(master.get_analog(ANALOG_LEFT_Y));
+		 leftMg.move(master.get_analog(ANALOG_RIGHT_Y));
 
-		if(master.get_digital(DIGITAL_R1)){
-			lift.move_voltage(12000);
-			isbuttonpressed = true;
-		}
-		if(master.get_digital(DIGITAL_R2)){
-			lift.move_voltage(-12000);
-			isbuttonpressed = true;
-		}
 
-		if(isbuttonpressed == false){
-			lift.move_voltage(0);
-		}
-
-		isbuttonpressed = false;
-
-		
-		pros::delay(10);
-		
+		 pros::delay(20);
 	}
 		
 	/*
