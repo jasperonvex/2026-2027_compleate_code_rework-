@@ -261,7 +261,7 @@ void tracking::getAbsolutePosition(int dis1Num, int dis2Num){
 
 position tracking::calculateDisOffset(int quad,double disOfsetX, double disOffsetY, double disDegOffset, double rA, double distence){
     double disXoffset = quadrantOffset[quad].x * (72 - abs(sin(function.DegToRad(function.normalizeDegAngle(rA + disDegOffset)))*distence));
-    double disYoffset = quadrantOffset[quad].y * (72 - abs(sin(function.DegToRad(function.normalizeDegAngle(rA + disDegOffset)))*distence));
+    double disYoffset = quadrantOffset[quad].y * (72 - abs(cos(function.DegToRad(function.normalizeDegAngle(rA + disDegOffset)))*distence));
 
     double disOffRadianTh = atan2(disOfsetX,disOffsetY);
     double disOffsetRadianHyp = sqrt(pow(disOfsetX,2) + pow(disOffsetY,2));
