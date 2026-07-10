@@ -4,30 +4,12 @@
 
 tracking track;
 
-double  vertDisDelta = 0;
-double vertDis = 0;
-double vertPrevDis = 0;
+double wheelcric = 1.00*M_PI;
+double VerticalWhelcirc = 1.375*M_PI;
 
-double horDisDelta = 0;
-double horDis = 0;
-double horPrevDis = 0;
-
-double HeaderDelta = 0;
-double Header = 0;
-double Aheader = 0;
-double HeaderPrev = 0;
-
-double wheelDi = 2.0;
-
-double wheelcric = wheelDi*M_PI;
-
-double offsetX = 0;
-double offsetY = 0;
-
-int NumOfFails = 0;
-
-double degToIn(double centiDeg){
-    return ((centiDeg/100)/360) * wheelcric;
+double degToIn(double centiDeg,bool horosontleWeel){
+    if(horosontleWeel)return ((centiDeg/100)/360) * wheelcric;
+    if(!horosontleWeel)return ((centiDeg/100)/360) * VerticalWhelcirc;
 }
 
 
@@ -48,12 +30,12 @@ void tracking::odomLoop(){
     while(true){
 
         //this calculates the change in the vertical wheel sensor
-        vertDis = degToIn(verticalWheel.get_position());
+        vertDis =  ((verticalWheel.get_position()/100.00)/360.00) * VerticalWhelcirc;
         vertDisDelta = vertDis - vertPrevDis;
         vertPrevDis = vertDis;
 
         //this calculates the change in the horisontle wheel sensor
-        horDis = degToIn(horizontaleWheel.get_position());
+        horDis = ((horizontaleWheel.get_position()/100.00)/360.00) * wheelcric;
         horDisDelta = horDis - horPrevDis;
         horPrevDis = horDis;
 
@@ -69,8 +51,8 @@ void tracking::odomLoop(){
             offsetY = vertDisDelta;
         }else{
             //if otherwise the offsets to the robots positon will be caculated in a arch
-            offsetX = (2*(sin(Aheader))) * ((horDisDelta/HeaderDelta) + (horizontalOffset));
-            offsetY = (2*(sin(Aheader))) * ((vertDisDelta/HeaderDelta) + (verticalOffset));
+            offsetX = (2*(sin(HeaderDelta/2.0))) * ((horDisDelta/HeaderDelta) + (horizontalOffset));
+            offsetY = (2*(sin(HeaderDelta/2.0))) * ((vertDisDelta/HeaderDelta) + (verticalOffset));
         }
 
         //  now we have to rotate the offsets based off of the avradge orintation
@@ -109,15 +91,17 @@ void tracking::odomLoop(){
         
         if(cameraTrack.TagPositionDetected)MergeCameraAndATLA();
 
-        pros::delay(10);//needs to stay below 10ms
+        pros::delay(50);
+
+       
         
         
     }
 }
 
 void tracking::MergeCameraAndATLA(){
-    RoboPosition.x += (RoboPosition.x - cameraTrack.getAtlaPosition().x) * cameraTrack.CameraTrust;
-    RoboPosition.y += (RoboPosition.y - cameraTrack.getAtlaPosition().y) * cameraTrack.CameraTrust;
+    RoboPosition.x =  RoboPosition.x + ((cameraTrack.getAtlaPosition().x - RoboPosition.x ) * track.cameraTrack.CameraTrust);
+    RoboPosition.y =  RoboPosition.y + ((cameraTrack.getAtlaPosition().y - RoboPosition.y) * track.cameraTrack.CameraTrust);
 }
 
 
@@ -155,6 +139,9 @@ void tracking::startOdomLoop(){
     horizontaleWheel.reset();
     inert.reset();
 
+    verticalWheel.set_position(0);
+    horizontaleWheel.set_position(0);
+
     //since the inertial sensor takes time to reset we want to
     //make sure it is done before we start the odom loop
     while (inert.is_calibrating()){
@@ -165,7 +152,7 @@ void tracking::startOdomLoop(){
     horizontaleWheel.set_data_rate(5);
     inert.set_data_rate(5);
 
-    pros::delay(10);
+    pros::delay(500);
     pros::Task odomLoopTask([this]{
         this->odomLoop();
     });
@@ -345,17 +332,19 @@ void cameraTracking::Start_ATLA(){
 
 
 void cameraTracking::ATLA(){
-    double Fx = (Image_Width/2) / tan(Horosontle_FOV/2);
-    double Fy = (Image_Height/2) / tan(Veritcal_FOV/2);
+    double Fx = (Image_Width/2) / tan(function.DegToRad(Horosontle_FOV/2));
+    double Fy = (Image_Height/2) / tan(function.DegToRad(Veritcal_FOV/2));
 
     
 
     while(true){
-        
+         TagPositionDetected = false;
 
         auto objects = vis.get_all_objects();
 
         position roboPos = track.getPositionData();
+
+        roboPos.a = function.DegToRad(roboPos.a);
 
         double Camx;
         double Camy;
@@ -365,7 +354,6 @@ void cameraTracking::ATLA(){
         if(objects.empty()){
             pros::delay(50);
             camerastatus = cameraStatusOrignal + "No tag";
-            TagPositionDetected = false;
             continue;
         
         }
@@ -375,7 +363,6 @@ void cameraTracking::ATLA(){
             if(!pros::AIVision::is_type(object, pros::AivisionDetectType::tag)){ 
                 pros::delay(50);
                 camerastatus = cameraStatusOrignal + "Not a tag ?";
-                TagPositionDetected = false;
                 continue;
             }
 
@@ -395,16 +382,15 @@ void cameraTracking::ATLA(){
             pixleWidth = (function.GetDistence(corn0[0],corn0[1],corn1[0],corn1[1]) 
                                 + function.GetDistence(corn3[0],corn3[1],corn2[0],corn2[1]))/2;
 
-            if(pixleWidth < 10 || pixleWidth > 30){
+            if(pixleWidth < 10 || pixleWidth > 25){
                 pros::delay(50);
                  camerastatus = cameraStatusOrignal + "Tag out of rang";
-                 TagPositionDetected = false;
                 //adds a limit so the focal distance dosent get too crazy
                 continue;
                
             }
             
-            double GroundDistence = (Focal_length_Pixels / pixleWidth) * cos(verticalBearing + cameraoffset.pitchOffset);
+            double GroundDistence = (Focal_length_Pixels / pixleWidth) * cos(verticalBearing + function.DegToRad(cameraoffset.pitchOffset));
 
             double GlobalBearing = roboPos.a + horizontalBearing + function.DegToRad(cameraoffset.yawOffset);
 
@@ -435,6 +421,10 @@ void cameraTracking::ATLA(){
             CroboY = Camy - (cameraoffset.Yoffset * cos(roboPos.a)) + (cameraoffset.xOffset * sin(roboPos.a));
         
            TagPositionDetected = true;
+
+           //track.RoboPosition.x = CroboX;
+           //track.RoboPosition.y = CroboY;
+
             /*
             4.65145 is the avrage error of the liner eqation to the recorded points
             55 is the number of points i recorded
@@ -442,7 +432,8 @@ void cameraTracking::ATLA(){
             */
            double errorSigma = 4.65145 * sqrt(1.0 + (1.0 / 55.0) + (pow (pixleWidth - 17.16473,2) /1489.90897));
 
-           CameraTrust = 100 * erf(tolerance / (errorSigma * sqrt(2)));
+           CameraTrust =  erf(tolerance / (errorSigma * sqrt(2)));
+
             
         camerastatus +=   "worked sucsufully";
         

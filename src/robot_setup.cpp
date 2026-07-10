@@ -11,7 +11,7 @@ pros::Controller master(pros::controller_id_e_t::E_CONTROLLER_MASTER);
 
 //odomertry
  pros::Rotation verticalWheel(6);
- pros::Rotation horizontaleWheel(5);
+ pros::Rotation horizontaleWheel(-5);
  pros::Imu inert(7);
 
 //distence tracking

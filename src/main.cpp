@@ -4,8 +4,11 @@
 #include "mainFunctionsH/functions.hpp"
 
 void initialize() {
+	
+
 	pros::lcd::initialize();
 
+	
 	
 }
 
@@ -22,15 +25,36 @@ void autonomous() {}
 
 void opcontrol() {
 
-	
-	
+	track.startOdomLoop();
+
+	track.cameraTrack.Start_ATLA();
+
+	track.setPosition(-48,-48,0);
+
+	position robopos;
+
 
 	while(true){
+
+		///track.RoboPosition.a = function.roundNearistThous(function.DegToRad(inert.get_heading()));
+		
 		 rightMg.move(master.get_analog(ANALOG_LEFT_Y));
 		 leftMg.move(master.get_analog(ANALOG_RIGHT_Y));
 
+		 robopos = track.getPositionData();
 
-		 pros::delay(20);
+		 pros::lcd::set_text(1,"X: " + std::to_string(robopos.x));
+		 pros::lcd::set_text(2,"Y: " + std::to_string(robopos.y));
+		 pros::lcd::set_text(3,"A: " + std::to_string(robopos.a));
+
+		pros::lcd::set_text(4,"camera trust: " + std::to_string(track.cameraTrack.CameraTrust));
+		 pros::lcd::set_text(5, "cameraX: " + std::to_string(track.cameraTrack.CroboX));
+		 pros::lcd::set_text(6, "CameraY: " + std::to_string(track.cameraTrack.CroboY));
+		 pros::lcd::set_text(7, track.cameraTrack.camerastatus);
+		 
+
+
+		 pros::delay(100);
 	}
 		
 	/*

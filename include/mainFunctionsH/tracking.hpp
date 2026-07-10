@@ -27,8 +27,9 @@ class cameraTracking{
         double Yoffset;
         double yawOffset;
         double pitchOffset;
+        double  angleOffset;
    }
-    cameraoffset = {0,0,-3.72,0};
+    cameraoffset = {0,5.375,5.65,0};
 
     double Image_Width = 320;
     double Image_Height = 240;
@@ -38,7 +39,7 @@ class cameraTracking{
 
     
 
-    double Focal_length_Pixels = (-0.23414 * pixleWidth)+160.31024;// (distence * pixlewidth) / actual width
+    double Focal_length_Pixels = 157;// (distence * pixlewidth) / actual width
     
     aprilTag apriltags[5] = {
         {0,{0,0}},
@@ -58,8 +59,7 @@ class cameraTracking{
     //automatic tag localization Approximation 
     void ATLA();
 
-    double CroboX;
-    double CroboY;
+   
 
     double tolerance = 8.0;
 
@@ -87,6 +87,9 @@ class cameraTracking{
      double pixleWidth;
     std::string cameraStatusOrignal = "Camera status: ";
      std::string camerastatus = cameraStatusOrignal;
+
+      double CroboX;
+    double CroboY;
 };
 
 class tracking{
@@ -94,10 +97,10 @@ class tracking{
     private:
 
     //how far the horosntle wheel is from the center of the robot Y axis wise
-    double horizontalOffset = 0;
+    double horizontalOffset = 3.56;
 
     //how far the vertial wheel is from the center of the robot x axis wise
-    double verticalOffset = 0;
+    double verticalOffset = 2.25;
 
      
     
@@ -117,7 +120,7 @@ class tracking{
 
     position calculateDisOffset(int quad,double disOfsetX, double disOffsetY, double disDegOffset, double rA, double distence);
 
-    position RoboPosition;
+   
 
     
 
@@ -136,6 +139,35 @@ class tracking{
     void getHeaderViaDis(double perpWallHead);
 
     cameraTracking cameraTrack;
+
+
+    // should be private
+
+     position RoboPosition;
+
+
+    double  vertDisDelta = 0;
+double vertDis = 0;
+double vertPrevDis = 0;
+
+double horDisDelta = 0;
+double horDis = 0;
+double horPrevDis = 0;
+
+double HeaderDelta = 0;
+double Header = 0;
+double Aheader = 0;
+double HeaderPrev = 0;
+
+double wheelDi = 2.0;
+double VerticalWheelDi = 2.75;
+
+
+
+double offsetX = 0;
+double offsetY = 0;
+
+int NumOfFails = 0;
 
 };
 

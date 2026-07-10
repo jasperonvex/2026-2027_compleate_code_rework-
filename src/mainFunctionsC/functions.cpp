@@ -31,9 +31,11 @@ double functions::normalizeDegAngle(double A){
 //quick rounding to the nearist thousond.
 double functions::roundNearistThous(double Num){
     double n = Num;
-    n = round(n*1000);
+    n = (double)round(n*1000);
     n = n/1000;
     return n;
+
+    
 }
 
 // milameters to inches
